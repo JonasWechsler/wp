@@ -15,7 +15,6 @@ function main {
   DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
   K_MEANS=16
   WALLPAPER_DIR=${WALLPAPER_DIR:-~/.wallpapers/}
-
   while test $# -gt 0; do
       case "$1" in
           usage | -h | --help)
@@ -124,7 +123,7 @@ function remove {
 function change {
   #:: Select a random background from WALLPAPER_DIR, or use the passed background
   if [ -z $1 ]; then
-    background=$(find $WALLPAPER_DIR -type f \( -name '*.jpg' -o -name '*.png' \) | shuf -n1)
+	  background=$(find $WALLPAPER_DIR -type f \( -name '*.jpg' \) | shuf -n1)
   else
     background=$WALLPAPER_DIR/$1
 
@@ -142,21 +141,26 @@ function change {
   filename=$(basename $background)
   dirname=$(dirname $background)
 
+  echo "Set background to $background"
+
   #:: Set the background
   feh --bg-fill $background
 
   #:: Record the current background
   set_current $background
 
-  if [ $? -ne 0 ]; then
-    indent "Failed to set $background as background"
-  else
-    indent "Set $background as background"
+  #if [ $? -ne 0 ]; then
+  #  indent "Failed to set $background as background"
+  #else
+  #  indent "Set $background as background"
 
     #:: Set the colorscheme
-    ln -f ${dirname}/.${filename}.colors ~/.colors
-    xrdb -merge ${dirname}/.${filename}.Xres
-  fi
+    #ln -f ${dirname}/.${filename}.colors ~/.colors
+  source ${dirname}/.${filename}.colors
+    #xrdb -merge ${dirname}/.${filename}.Xres
+	newconfig=$(sed  "/[\[background\]\]/!b;n;c palette = \"$COLOR0:$COLOR1:$COLOR2:$COLOR3:$COLOR4:$COLOR5:$COLOR6:$COLOR7:$COLOR8:$COLOR9:$COLOR10:$COLOR11:$COLOR12:$COLOR13:$COLOR14:$COLOR15\"" $HOME/.config/terminator/config)
+  echo "$newconfig" > $HOME/.config/terminator/config
+  #fi
 }
 
 function slideshow {
